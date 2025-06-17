@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/splitwise
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+  db:
+    image: postgres:13
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port to host
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=splitwise
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: postgres -c 'shared_buffers=256MB' -c 'effective_cache_size=768MB' -c 'work_mem=2MB' -c 'max_connections=20'
+volumes:
+  postgres_data:
